@@ -4,6 +4,16 @@ Bridgeform is a local browser tool for connecting disconnected SVG artwork with 
 
 ![Bridgeform creating automatic raised bridges across SVG stencil artwork](docs/bridgeform-screenshot.png)
 
+## Example output
+
+Printed Bridgeform stencil:
+
+![3D printed Bridgeform stencil with raised bridge arches](docs/example-print.jpg)
+
+Spraypaint result:
+
+![Spraypaint stencil result made with a Bridgeform print](docs/example-stencil.jpg)
+
 ## Use it in a browser
 
 This repository includes a GitHub Pages workflow. After Pages is enabled with **GitHub Actions** as its source, every push to `main` publishes the working tool. Open the Pages URL shown by the completed **Deploy Bridgeform to GitHub Pages** action.
