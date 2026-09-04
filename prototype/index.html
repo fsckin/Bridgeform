@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Create raised bridges between disconnected SVG pieces and export a 3D-printable STL." />
+    <title>Bridgeform — Raised Stencil Bridge Maker</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three.module.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 17.5V13c0-1.7 1.3-3 3-3h8c1.7 0 3 1.3 3 3v4.5M8 10V8a4 4 0 0 1 8 0v2" /></svg>
+        </div>
+        <div>
+          <div class="brand-line"><h1>Bridgeform</h1><span>Prototype</span></div>
+          <p>Raised bridges for printable stencil artwork</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="local-note"><i></i>Local only</span>
+        <button id="undoButton" class="icon-button" type="button" aria-label="Undo last bridge" title="Undo last bridge" disabled>
+          <svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M5 12h8a6 6 0 0 1 6 6" /></svg>
+        </button>
+        <button id="exportButton" class="primary-button" type="button" disabled>
+          <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" /></svg>
+          Export STL
+        </button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="left-panel panel">
+        <section>
+          <h2>Artwork</h2>
+          <label class="upload-card" for="svgInput">
+            <span class="upload-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0 4 4m-4-4L8 8M5 20h14" /></svg>
+            </span>
+            <span><strong>Choose an SVG</strong><small>or drop it here</small></span>
+          </label>
+          <input id="svgInput" type="file" accept="image/svg+xml,.svg" hidden />
+          <div class="file-card">
+            <div><strong id="fileName">bridgeform-logo-solid.svg</strong><small id="fileMeta">Loading artwork…</small></div>
+            <div class="file-actions">
+              <button id="flipLongEdgeButton" type="button" title="Mirror artwork left to right">Flip long edge</button>
+              <button id="sampleButton" type="button">Reload sample</button>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 id="bridgeShapeTitle">New bridge defaults</h2>
+          <div id="bridgeSelection" class="bridge-selection" hidden>
+            <span><strong id="selectedBridgeLabel">Bridge 01 selected</strong><small id="selectedBridgeHint">Controls edit only this bridge</small></span>
+            <button id="clearBridgeSelection" type="button">Done</button>
+          </div>
+          <label class="range-control">
+            <span><span>Arch height</span><output id="archHeightValue">15.0 mm</output></span>
+            <input id="archHeight" type="range" min="1" max="50" step="0.2" value="15" />
+          </label>
+          <label class="range-control">
+            <span><span>Bridge width</span><output id="bridgeWidthValue">4.0 mm</output></span>
+            <input id="bridgeWidth" type="range" min="2" max="8" step="0.2" value="4" />
+          </label>
+          <label class="range-control">
+            <span><span>Model thickness</span><output id="modelThicknessValue">3.5 mm</output></span>
+            <input id="modelThickness" type="range" min="0.6" max="5" step="0.1" value="3.5" />
+          </label>
+          <label class="range-control">
+            <span><span>Finished width</span><output id="modelWidthValue">240 mm</output></span>
+            <input id="modelWidth" type="range" min="40" max="280" step="5" value="240" />
+          </label>
+        </section>
+
+        <section class="suggestion-card">
+          <div><svg viewBox="0 0 24 24"><path d="m12 3 1.2 4.4L17 9l-3.8 1.6L12 15l-1.2-4.4L7 9l3.8-1.6L12 3ZM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z" /></svg><strong>Automatic suggestions</strong></div>
+          <p id="suggestionText">Connect the four sample pieces automatically, or add each bridge yourself.</p>
+          <label class="range-control suggestion-range">
+            <span><span>Bridges per island</span><output id="autoConnectionsValue">1</output></span>
+            <input id="autoConnections" type="range" min="1" max="6" step="1" value="1" />
+          </label>
+          <button id="suggestButton" type="button">Suggest bridges</button>
+        </section>
+      </aside>
+
+      <section id="workspace" class="workspace" aria-label="Interactive 3D stencil workspace">
+        <canvas id="viewport"></canvas>
+        <div class="workspace-toolbar" role="toolbar" aria-label="Workspace tools">
+          <button id="addModeButton" class="active" type="button">
+            <svg viewBox="0 0 24 24"><path d="m5 3 14 9-6 2-2 6L5 3Z" /></svg>
+            Add bridge
+          </button>
+          <button id="inspectModeButton" type="button">Inspect</button>
+        </div>
+        <div class="view-toolbar">
+          <button id="zoomInButton" type="button" aria-label="Zoom in">+</button>
+          <span id="zoomLabel">100%</span>
+          <button id="zoomOutButton" type="button" aria-label="Zoom out">−</button>
+          <button id="resetViewButton" type="button" aria-label="Reset view">
+            <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" /></svg>
+          </button>
+        </div>
+        <div class="view-cube-shell">
+          <canvas id="viewCube" width="132" height="132" aria-label="Camera orientation cube. Drag to orbit or click a labeled face."></canvas>
+          <span>Grab to orbit</span>
+        </div>
+        <div id="emptyState" class="empty-state" hidden>
+          <strong>No filled SVG paths found</strong>
+          <span>Convert text and strokes to filled paths, then try again.</span>
+        </div>
+        <div id="statusPill" class="status-pill">
+          <svg viewBox="0 0 24 24"><path d="m5 3 14 9-6 2-2 6L5 3Z" /></svg>
+          <span id="statusText">Click one piece, then another, to add a raised bridge</span>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </section>
+
+      <aside class="right-panel panel">
+        <section class="connections-section">
+          <div class="section-heading"><h2>Connections</h2><span id="bridgeCountBadge">0</span></div>
+          <div id="connectionList" class="connection-list"></div>
+          <div id="noConnections" class="no-connections">
+            <span class="upload-icon">
+              <svg viewBox="0 0 24 24"><path d="M5 17.5V13c0-1.7 1.3-3 3-3h8c1.7 0 3 1.3 3 3v4.5M8 10V8a4 4 0 0 1 8 0v2" /></svg>
+            </span>
+            <strong>No bridges yet</strong>
+            <small>Add one manually or use suggestions.</small>
+          </div>
+        </section>
+        <section class="print-card">
+          <div><strong>Print check</strong><span id="readyBadge">Needs bridges</span></div>
+          <dl>
+            <dt>Pieces</dt><dd id="pieceCount">0</dd>
+            <dt>Bridges</dt><dd id="bridgeCount">0</dd>
+            <dt>Unconnected</dt><dd id="floatingCount">0</dd>
+          </dl>
+          <p>Bridges overlap the artwork slightly so common slicers can merge the shells for printing.</p>
+        </section>
+      </aside>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
