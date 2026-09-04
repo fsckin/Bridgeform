@@ -102,9 +102,21 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 }
 .file-card strong, .file-card small { display: block; max-width: 118px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-card strong { font-size: 10px; }.file-card small { margin-top: 3px; color: var(--muted); font-size: 9px; }
-.file-actions { display: grid; justify-items: end; gap: 2px; flex: 0 0 auto; }
-.file-card button { padding: 4px 6px; border-radius: 6px; background: transparent; color: var(--muted); font-size: 9px; }
+.file-actions { display: grid; justify-items: end; gap: 4px; flex: 0 0 auto; }
+.file-card button { padding: 4px 7px; border-radius: 6px; background: transparent; color: var(--muted); font-size: 9px; }
 .file-card button:hover { color: var(--foreground); background: var(--field); }
+.file-card .secondary-button {
+  border: 1px solid rgb(91 243 195 / 38%);
+  background: rgb(91 243 195 / 12%);
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 4%);
+}
+.file-card .secondary-button:hover {
+  background: rgb(91 243 195 / 18%);
+  color: var(--foreground);
+  transform: translateY(-1px);
+}
 
 .range-control { display: block; margin-bottom: 17px; }
 .bridge-selection { display: none; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; padding: 9px 10px; border: 1px solid rgb(255 199 116 / 30%); border-radius: 10px; background: rgb(255 199 116 / 8%); }
