@@ -1,5 +1,7 @@
 # Bridgeform
 
+![Bridgeform logo](docs/bridgeform-logo-readme.png)
+
 Bridgeform is a local browser tool for connecting disconnected SVG artwork with raised, 3D-printable arches, designed for use with spraypaint stencils.
 
 ![Bridgeform creating automatic raised bridges across SVG stencil artwork](docs/bridgeform-screenshot.png)
